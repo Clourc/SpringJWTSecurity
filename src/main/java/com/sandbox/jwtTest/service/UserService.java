@@ -1,8 +1,11 @@
 package com.sandbox.jwtTest.service;
 
 import com.sandbox.jwtTest.dto.UserDto;
-import com.sandbox.jwtTest.entity.User;
+import com.sandbox.jwtTest.entity.Role;
+import com.sandbox.jwtTest.entity.UserEntity;
+import com.sandbox.jwtTest.repository.RoleRepository;
 import com.sandbox.jwtTest.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -12,10 +15,12 @@ import java.util.regex.Pattern;
 public class UserService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bcryptEncoder;
+    private final RoleRepository roleRepository;
 
-    public UserService(UserRepository userRepository, BCryptPasswordEncoder bcryptEncoder) {
+    public UserService(UserRepository userRepository, BCryptPasswordEncoder bcryptEncoder, RoleRepository roleRepository) {
         this.userRepository = userRepository;
         this.bcryptEncoder = bcryptEncoder;
+        this.roleRepository = roleRepository;
     }
 
     //Test password regex
@@ -42,9 +47,17 @@ public class UserService {
         }
 
         String hashedpassword = bcryptEncoder.encode(userDto.getPassword());
+        Role userRole;
 
-        User newUser = new User(userDto.getUsername(), hashedpassword, userDto.getEmail());
+        if(roleRepository.findById(userDto.getRoleId()).isPresent()){
+            userRole = roleRepository.findById(userDto.getRoleId()).get();
+        } else {
+            throw new RuntimeException("Ce role id n'existe pas");
+        }
+        UserEntity newUser = new UserEntity(userDto.getUsername(), hashedpassword, userDto.getEmail(), userRole);
+        userDto.setRole(userRole.getType());
         userRepository.save(newUser);
+        userDto.setPassword("hidden");
         return userDto;
     }
 
@@ -53,14 +66,19 @@ public class UserService {
     }
 
     public UserDto login(UserDto userDto){
-        User user = getUserByEmail(userDto.getEmail());
+        UserEntity user = getUserByEmail(userDto.getEmail());
         if(!verifyHashedPasswordDuringLogin(userDto.getPassword(), user.getPassword())) {
             throw new RuntimeException("Mot de pass incorrect");
         }
+        Long roleId = user.getRole().getId();
+        userDto.setUsername(user.getUsername());
+        userDto.setRoleId(roleId);
+        userDto.setRole(roleRepository.findById(roleId).get().getType());
+        userDto.setPassword("hidden");
         return userDto;
     }
 
-    public User getUserByEmail(String email) {
+    public UserEntity getUserByEmail(String email) {
         if (userRepository.findByEmail(email).isPresent()) {
             return userRepository.findByEmail(email).get();
         } else {

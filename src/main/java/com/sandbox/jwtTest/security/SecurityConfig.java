@@ -32,6 +32,8 @@ public class SecurityConfig {
                 .cors(cors -> cors.configure(http))
                 .authorizeHttpRequests((requests) -> requests
                         .requestMatchers("/register", "/login").permitAll()
+                        .requestMatchers("/admin-only").hasAuthority("ADMIN")
+                        .requestMatchers("/all").hasAnyAuthority("ADMIN", "USER")
                         .requestMatchers("other_route_example/**")
                         .authenticated())
                 .csrf((csrf) -> csrf.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())

@@ -1,7 +1,8 @@
 package com.sandbox.jwtTest.jwt;
 
 import org.springframework.security.core.GrantedAuthority;
-import com.sandbox.jwtTest.entity.User;
+import com.sandbox.jwtTest.entity.UserEntity;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
@@ -10,16 +11,16 @@ import java.util.List;
 
 public class UserPrincipal implements UserDetails {
 
-    User user;
+    UserEntity user;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities(){
         List<GrantedAuthority> authorities = new ArrayList<>();
-        //authorities.add(new SimpleGrantedAuthority(user.getRole().getType()));
+        authorities.add(new SimpleGrantedAuthority(user.getRole().getType()));
         return authorities;
     }
 
-    public UserPrincipal(User user){
+    public UserPrincipal(UserEntity user){
         this.user = user;
     }
 
@@ -30,6 +31,8 @@ public class UserPrincipal implements UserDetails {
     public String getUsername(){
         return user.getUsername();
     }
+
+    public String getEmail() { return user.getEmail(); }
 
     @Override
     public boolean isAccountNonExpired() { return false; }

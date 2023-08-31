@@ -1,6 +1,7 @@
 package com.sandbox.jwtTest.filter;
 
 import com.sandbox.jwtTest.jwt.Jwt;
+import com.sandbox.jwtTest.jwt.UserPrincipal;
 import com.sandbox.jwtTest.service.UserDetailsServiceApp;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -34,31 +35,33 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             FilterChain chain
     ) throws ServletException, IOException {
         final String authorizationHeader = request.getHeader("Authorization");
-        System.out.println("@@@@@@@@ " + authorizationHeader);
+        System.out.println("authorizationHeader " + authorizationHeader);
 
-        String username = null;
+        String email = null;
         String token = null;
 
-        //Recupération du token et username depuis header
+        //Recupération du token et email depuis header
         if(authorizationHeader != null && authorizationHeader.startsWith("Bearer ")){
             token = authorizationHeader.substring(7);
-            username = jwtUtil.extractUsername(token);
+            email = jwtUtil.extractEmail(token);
         }
 
         //Vérification du token
-        if(username != null && SecurityContextHolder.getContext().getAuthentication() == null){
-            UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
+        if(email != null && SecurityContextHolder.getContext().getAuthentication() == null){
+            UserPrincipal userPrincipal = this.userDetailsService.loadUserByEmail(email);
+            System.out.println("jwtUtil validateToken " + jwtUtil.validateToken(token, userPrincipal));
+            System.out.println("userPrincipal authorities +" + userPrincipal.getAuthorities());
 
-            if(jwtUtil.validateToken(token, userDetails)){
+            if(jwtUtil.validateToken(token, userPrincipal)){ //@@@@@@@@@@@@@@@@@@@@@@@@@@@@
                 var usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
-                        userDetails,
+                        userPrincipal,
                         null,
-                        userDetails.getAuthorities()
+                        userPrincipal.getAuthorities()
                 );
                 usernamePasswordAuthenticationToken.setDetails(
                         new WebAuthenticationDetailsSource().buildDetails(request)
                 );
-                System.out.println("@@@@@@@@@@ " + usernamePasswordAuthenticationToken);
+                System.out.println("usernamePasswordAuthenticationToken " + usernamePasswordAuthenticationToken);
                 SecurityContextHolder
                         .getContext()
                         .setAuthentication(usernamePasswordAuthenticationToken);

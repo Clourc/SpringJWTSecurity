@@ -15,10 +15,10 @@ public class UserDetailsServiceApp {
         this.userRepository = userRepository;
     }
 
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        if (userRepository.findByUsername(username).isPresent()) {
-            return new UserPrincipal(userRepository.findByUsername(username).get());
+    public UserPrincipal loadUserByEmail(String email) {
+        if (userRepository.findByEmail(email).isPresent()) {
+            return new UserPrincipal(userRepository.findByEmail(email).get());
         }
-        throw new RuntimeException("Aucun utilisateur trouvé par ce username");
+        throw new RuntimeException("Aucun utilisateur trouvé par cet email");
     }
 }
