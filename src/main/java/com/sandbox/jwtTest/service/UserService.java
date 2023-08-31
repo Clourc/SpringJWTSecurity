@@ -48,6 +48,18 @@ public class UserService {
         return userDto;
     }
 
+    public boolean verifyHashedPasswordDuringLogin(String password, String hashedPassword){
+        return bcryptEncoder.matches(password, hashedPassword);
+    }
+
+    public UserDto login(UserDto userDto){
+        User user = getUserByEmail(userDto.getEmail());
+        if(!verifyHashedPasswordDuringLogin(userDto.getPassword(), user.getPassword())) {
+            throw new RuntimeException("Mot de pass incorrect");
+        }
+        return userDto;
+    }
+
     public User getUserByEmail(String email) {
         if (userRepository.findByEmail(email).isPresent()) {
             return userRepository.findByEmail(email).get();

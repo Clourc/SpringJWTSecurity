@@ -18,14 +18,15 @@ public class JwtController {
 
     private final Jwt jwtUtil;
     private final UserService userService;
-    public JwtController(Jwt jwtUtil, UserService userService){
+
+    public JwtController(Jwt jwtUtil, UserService userService) {
         this.jwtUtil = jwtUtil;
         this.userService = userService;
     }
 
     @PostMapping("/register")
     @ResponseBody
-    public ResponseEntity<ApiResponse<Object>> register(@RequestBody UserDto newUser){
+    public ResponseEntity<ApiResponse<Object>> register(@RequestBody UserDto newUser) {
         HashMap<String, Object> data = new HashMap<>();
         try {
             userService.register(newUser);
@@ -39,4 +40,19 @@ public class JwtController {
         }
     }
 
+    @PostMapping("/login")
+    @ResponseBody
+    public ResponseEntity<ApiResponse<Object>> login(@RequestBody UserDto user) {
+        HashMap<String, Object> data = new HashMap<>();
+        try {
+            userService.login(user);
+            String token = jwtUtil.generateToken(user);
+            data.put("user", user);
+            data.put("token", token);
+            return new ResponseEntity<>(new ApiResponse<>(data), HttpStatus.OK);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return new ResponseEntity<>(new ApiResponse<>(e.getMessage()), HttpStatus.BAD_REQUEST);
+        }
+    }
 }
