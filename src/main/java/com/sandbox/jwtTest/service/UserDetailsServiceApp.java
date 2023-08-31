@@ -2,8 +2,6 @@ package com.sandbox.jwtTest.service;
 
 import com.sandbox.jwtTest.jwt.UserPrincipal;
 import com.sandbox.jwtTest.repository.UserRepository;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
 @Component

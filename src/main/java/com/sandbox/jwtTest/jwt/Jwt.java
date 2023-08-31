@@ -1,11 +1,9 @@
 package com.sandbox.jwtTest.jwt;
 
 import com.sandbox.jwtTest.dto.UserDto;
-import com.sandbox.jwtTest.repository.UserRepository;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import io.jsonwebtoken.Jwts;
